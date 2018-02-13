@@ -7,10 +7,10 @@ resources:
       source:
           uri: https://github.com/danieljamesrees/dummy_repo_a
 
-    - name: dummy_repo_b
-      type: git
-      source:
-          uri: https://github.com/danieljamesrees/dummy_repo_a
+#    - name: dummy_repo_b
+#      type: git
+#      source:
+#          uri: https://github.com/danieljamesrees/dummy_repo_a
 
 jobs:
 
@@ -21,14 +21,14 @@ jobs:
             config:
                 platform: linux
                 inputs:
-                    - name: echo_manual_trigger
+                    - name: dummy_repo_a
                 run:
-                  path: sh
-                  args: 
-                      - -exc
-                      - |
-                          echo "dummy_repo_a was manually triggered"
-                          exit ((return_code))
+                    path: sh
+                    args: 
+                        - -exc
+                        - |
+                            echo "dummy_repo_a was manually triggered"
+                            exit ((return_code))
 
     - name: no_trigger
       plan:
@@ -37,68 +37,14 @@ jobs:
             config:
                 platform: linux
                 inputs:
-                    - name: echo_no_trigger
+                    - name: dummy_repo_a
                 run:
-                  path: sh
-                  args: 
-                      - -exc
-                      - |
-                          echo "dummy_repo_a should not have been triggered"
-                          echo "no_trigger running at " >> README.md
-                          date -i >> README.md
+                    path: sh
+                    args: 
+                        - -exc
+                        - |
+                            echo "dummy_repo_a should not have been triggered"
+                            echo "no_trigger running at " >> README.md
+                            date -i >> README.md
             ensure:
                 put: dummy_repo_a
-
-    - name: no_put_trigger
-      plan:
-          - get: dummy_repo_a
-          - task: echo
-            config:
-                platform: linux
-                inputs:
-                    - name: echo_no_put_trigger
-                run:
-                  path: sh
-                  args: 
-                      - -exc
-                      - |
-                          echo "dummy_repo_a should not have been triggered by the previous put"
-
-    - name: git_trigger
-      plan:
-          - get: dummy_repo_a
-                trigger: true
-          - task: echo
-            config:
-                platform: linux
-                inputs:
-                    - name: echo_git_trigger
-                run:
-                  path: sh
-                  args: 
-                      - -exc
-                      - |
-                          echo "dummy_repo_a was meant to be triggered by a git push"
-
-    - name: passed_trigger
-      plan:
-          - get: dummy_repo_a
-                passed: [manual_trigger]
-          - task: echo
-            config:
-                platform: linux
-                inputs:
-                  - name: echo_passed_trigger
-                run:
-                  path: sh
-                  args: 
-                      - -exc
-                          echo "dummy_repo_a was meant to be triggered by the manual trigger task"
-
-    # Only runs when manually triggered, or bbl-state has changed and setup-infrastructure has run?
-    - name: deploy
-      build_logs_to_retain: 100
-      plan:
-          - aggregate:
-              - get: cf-deployment-concourse-tasks
-              - get: bbl-state
