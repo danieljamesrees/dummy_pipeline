@@ -1,50 +1,29 @@
 ---
 
+image_resource:
+  type: docker-image
+  source: {repository: ubuntu}
+
 resources:
 
-    - name: dummy_repo_a
-      type: git
-      source:
-          uri: https://github.com/danieljamesrees/dummy_repo_a
-
-#    - name: dummy_repo_b
-#      type: git
-#      source:
-#          uri: https://github.com/danieljamesrees/dummy_repo_a
+  - name: dummy_repo_a
+    type: git
+    source:
+      uri: https://github.com/danieljamesrees/dummy_repo_a
 
 jobs:
 
     - name: manual_trigger
       plan:
-          - get: dummy_repo_a
-          - task: echo
-            config:
-                platform: linux
-                inputs:
-                    - name: dummy_repo_a
-                run:
-                    path: sh
-                    args: 
-                        - -exc
-                        - |
-                            echo "dummy_repo_a was manually triggered"
-                            exit ((return_code))
-
-    - name: no_trigger
-      plan:
-          - get: dummy_repo_a
-          - task: echo
-            config:
-                platform: linux
-                inputs:
-                    - name: dummy_repo_a
-                run:
-                    path: sh
-                    args: 
-                        - -exc
-                        - |
-                            echo "dummy_repo_a should not have been triggered"
-                            echo "no_trigger running at " >> README.md
-                            date -i >> README.md
-            ensure:
-                put: dummy_repo_a
+        - get: dummy_repo_a
+        - task: echo
+          config:
+            platform: linux
+            inputs:
+              - name: dummy_repo_a
+            run:
+              path: sh
+              args: 
+                - -exc
+                - |
+                  echo "dummy_repo_a was manually triggered"
