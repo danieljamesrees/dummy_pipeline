@@ -114,7 +114,7 @@ jobs:
     - name: passed_trigger
       plan:
           - get: dummy_repo_a
-                passed: [manual_trigger]
+            passed: [manual_trigger]
           - task: echo
             config:
                 platform: linux
@@ -128,5 +128,5 @@ jobs:
                     path: sh
                     args:
                         - -exc
-                            echo "dummy_repo_a was meant to be triggered by the manual trigger task"
+                            echo "dummy_repo_a was meant to be triggered by the manual trigger task, but only when the return code is ((return_code))"
 
