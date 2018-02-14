@@ -1,5 +1,7 @@
 ---
 
+#Check why I need to git add, then git commit to push - compare with Darren's
+
 resources:
 
     - name: dummy_repo_a
@@ -25,7 +27,7 @@ jobs:
                 platform: linux
                 image_resource:
                     type: docker-image
-                    source: {repository: busybox}
+                    source: {repository: ubuntu}
                 inputs:
                 inputs:
                     - name: dummy_repo_a
@@ -40,21 +42,32 @@ jobs:
       plan:
           - get: dummy_repo_a
           - task: echo
+            input_mapping: {input_repo: dummy_repo_a}
+            output_mapping: {output_repo: dummy_repo_a}
             config:
                 platform: linux
                 image_resource:
                     type: docker-image
-                    source: {repository: busybox}
+                    source: {repository: ubuntu}
                 inputs:
-                    - name: dummy_repo_a
+                    - name: input_repo
+                outputs:
+                    - name: output_repo
                 run:
                     path: sh
                     args: 
                         - -exc
                         - |
                             echo "dummy_repo_a was manually triggered"
-                            echo "manual_trigger running at " >> README.md
-                            date -I >> README.md
+                            apt-get update && apt-get install --yes git
+                            git clone input_repo output_repo
+                            cd output_repo
+                            echo >> README.md
+                            echo "manual_trigger running at $(date -R)" >> README.md
+                            git config user.name "Dummy"
+                            git config user.email "dummy@ci"
+                            git add README.md
+                            git commit -m "Update date."
                             exit ((return_code))
             ensure:
                 put: dummy_repo_a
@@ -69,7 +82,7 @@ jobs:
                 platform: linux
                 image_resource:
                     type: docker-image
-                    source: {repository: busybox}
+                    source: {repository: ubuntu}
                 inputs:
                 inputs:
                     - name: dummy_repo_a
@@ -78,4 +91,24 @@ jobs:
                     args: 
                         - -exc
                         - |
-                            echo "dummy_repo_a should not have been triggered by the previous put"
+                            echo "dummy_repo_a should not have been triggered by the previous put - even with return code ((return code))"
+
+    - name: git_trigger
+      plan:
+          - get: dummy_repo_a
+            trigger: true
+          - task: echo
+            config:
+                platform: linux
+                image_resource:
+                    type: docker-image
+                    source: {repository: ubuntu}
+                inputs:
+                inputs:
+                    - name: dummy_repo_a
+                run:
+                  path: sh
+                  args:
+                      - -exc
+                      - |
+                          echo "dummy_repo_a was meant to be triggered by a git push in a put, even when the preceding task was terminated with an exit, but not when triggered by a push outside of the pipeline"
