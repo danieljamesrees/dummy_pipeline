@@ -20,7 +20,7 @@ jobs:
     - name: no_trigger
       plan:
           - get: dummy_repo_a
-          - task: echo
+          - task: echo_no_trigger
             config:
                 platform: linux
                 image_resource:
@@ -39,7 +39,7 @@ jobs:
     - name: manual_trigger
       plan:
           - get: dummy_repo_a
-          - task: echo
+          - task: echo_manual_trigger
             input_mapping: {input_repo: dummy_repo_a}
             output_mapping: {output_repo: dummy_repo_a}
             config:
@@ -75,7 +75,7 @@ jobs:
     - name: no_put_trigger
       plan:
           - get: dummy_repo_a
-          - task: echo
+          - task: echo_no_put_trigger
             config:
                 platform: linux
                 image_resource:
@@ -95,7 +95,7 @@ jobs:
       plan:
           - get: dummy_repo_a
             trigger: true
-          - task: echo
+          - task: echo_git_trigger
             config:
                 platform: linux
                 image_resource:
@@ -115,18 +115,18 @@ jobs:
       plan:
           - get: dummy_repo_a
             passed: [manual_trigger]
-          - task: echo
+            trigger: true # Trigger must be present, even when not triggering from git.
+          - task: echo_passed_trigger
             config:
                 platform: linux
                 image_resource:
                     type: docker-image
                     source: {repository: ubuntu}
                 inputs:
-                inputs:
                     - name: dummy_repo_a
                 run:
                     path: sh
                     args:
                         - -exc
-                            echo "dummy_repo_a was meant to be triggered by the manual trigger task, but only when the return code is ((return_code))"
-
+                        - |
+                            echo "dummy_repo_a was meant to be triggered by the manual trigger task, even when terminated early, but only when the return code is ((return_code))"
