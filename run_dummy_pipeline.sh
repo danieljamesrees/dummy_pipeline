@@ -46,7 +46,7 @@ get_git_password
 echo Ensure you are logged into the correct Concourse instance using fly --target local login --team-name finkit-cpo --concourse-url CONCOURSE_EXTERNAL_URL
 echo About to start pipeline - do not quit until the smoking_pipeline Configured message is displayed or errors are identified
 
-fly --target local set-pipeline --pipeline dummy --config dummy.yml --var git_password=${GIT_PASSWORD} --var return_code=0 --non-interactive
+fly --target local set-pipeline --pipeline dummy --config dummy.yml --var git_password=${GIT_PASSWORD} --var return_code=1 --non-interactive
 fail_on_error "Failed to set dummy pipeline" $?
 
 echo Setting up pipeline

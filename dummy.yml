@@ -91,7 +91,7 @@ jobs:
                     args: 
                         - -exc
                         - |
-                            echo "dummy_repo_a should not have been triggered by the previous put - even with return code ((return code))"
+                            echo "dummy_repo_a should not have been triggered by the previous put - even with return code ((return_code))"
 
     - name: git_trigger
       plan:
@@ -111,4 +111,24 @@ jobs:
                   args:
                       - -exc
                       - |
-                          echo "dummy_repo_a was meant to be triggered by a git push in a put, even when the preceding task was terminated with an exit, but not when triggered by a push outside of the pipeline"
+                          echo "dummy_repo_a was meant to be triggered by a git push in a put, even when the preceding task was terminated with return code ((return_code)), but not when triggered by a push outside of the pipeline"
+
+    - name: passed_trigger
+      plan:
+          - get: dummy_repo_a
+                passed: [manual_trigger]
+          - task: echo
+            config:
+                platform: linux
+                image_resource:
+                    type: docker-image
+                    source: {repository: busybox}
+                inputs:
+                inputs:
+                    - name: dummy_repo_a
+                run:
+                    path: sh
+                    args:
+                        - -exc
+                            echo "dummy_repo_a was meant to be triggered by the manual trigger task"
+
