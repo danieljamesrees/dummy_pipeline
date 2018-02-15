@@ -51,22 +51,11 @@ jobs:
                     - name: input_repo
                 outputs:
                     - name: output_repo
+                params:
+                    return_code: ((return_code))
+                    SECRET_SAUCE: ((ive_got_the_key))
                 run:
-                    path: sh
-                    args: 
-                        - -exc
-                        - |
-                            echo "dummy_repo_a was manually triggered"
-                            apt-get update && apt-get install --yes git
-                            git clone input_repo output_repo
-                            cd output_repo
-                            echo >> README.md
-                            echo "manual_trigger running at $(date -R)" >> README.md
-                            git config user.name "Dummy"
-                            git config user.email "dummy@ci"
-                            git add README.md
-                            git commit -m "Update date."
-                            exit ((return_code))
+                    path: input_repo/echo_manual_trigger.sh
             ensure:
                 put: dummy_repo_a
                 params:
